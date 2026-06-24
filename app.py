@@ -17,12 +17,12 @@ def scan():
     cmd = [
     "nuclei",
     "-u", target,
-    "-t", "nuclei-templates/basic-check.yaml",
+    "-t", "/root/nuclei-templates/http/misconfiguration/http-missing-security-headers.yaml",
     "-jsonl",
     "-o", output,
     "-c", "1",
     "-rl", "1",
-    "-timeout", "5",
+    "-timeout", "10",
     "-retries", "0",
     "-silent",
     "-duc"
