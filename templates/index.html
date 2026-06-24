@@ -4,10 +4,12 @@
 
 <h1>Nuclei Security Scanner</h1>
 
-<form action="/scan" method="post">
-    <input name="target" placeholder="https://example.com" required>
+<form action="/scan" method="post" onsubmit="document.getElementById('msg').innerHTML='Scanning... please wait';">
+    <input name="target" placeholder="http://testphp.vulnweb.com" required>
     <button type="submit">Scan</button>
 </form>
+
+<p id="msg"></p>
 
 {% if target %}
     <h2>Results for {{ target }}</h2>
@@ -29,7 +31,12 @@
             {% endfor %}
         </table>
     {% else %}
-        <p>No critical or high findings found.</p>
+        <p>No findings found.</p>
+    {% endif %}
+
+    {% if stderr %}
+        <h3>Nuclei messages</h3>
+        <pre>{{ stderr }}</pre>
     {% endif %}
 {% endif %}
 
