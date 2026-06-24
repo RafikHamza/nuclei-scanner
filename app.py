@@ -15,16 +15,16 @@ def scan():
     output = f"results/output_{int(time.time())}.jsonl"
 
     cmd = [
-        "nuclei",
-        "-u", target,
-        "-j",
-        "-o", output,
-        "-severity", "low,medium,high,critical",
-        "-rl", "3",
-        "-c", "3",
-        "-silent",
-        "-duc"
-    ]
+    "nuclei",
+    "-u", target,
+    "-j",
+    "-o", output,
+    "-tags", "tech",
+    "-c", "1",
+    "-rl", "1",
+    "-silent",
+    "-duc"
+]
 
     try:
         r = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
