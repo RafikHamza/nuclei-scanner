@@ -36,15 +36,15 @@ The web form in `templates/index.html` sends a target URL to the Flask `/scan` e
 
 Never include passwords, tokens, private customer information, or unauthorized scan targets in the submission.
 
-### Marking rubric (100 points)
+### Marking rubric (10 points)
 
 | Criterion | Points | What is evaluated |
 |---|---:|---|
-| Local setup | 20 | Fork, Docker build, local service, reproducible commands |
-| System understanding | 20 | Accurate explanation of Flask, Nuclei, template, JSONL and web output |
-| Individual improvement | 25 | Useful implementation with clear rationale and readable code |
-| Testing and evidence | 20 | Normal and failure cases, evidence linked to conclusions |
-| Report and responsible practice | 15 | Clear 1–2 page report, honest limitations, authorized-target testing |
-| **Total** | **100** | |
+| Local setup | 2 | Fork, Docker build, local service, reproducible commands |
+| System understanding | 2 | Accurate explanation of Flask, Nuclei, template, JSONL and web output |
+| Individual improvement | 2.5 | Useful implementation with clear rationale and readable code |
+| Testing and evidence | 2 | Normal and failure cases, evidence linked to conclusions |
+| Report and responsible practice | 1.5 | Clear 1–2 page report, honest limitations, authorized-target testing |
+| **Total** | **10** | |
 
 The rubric is a **sample marking scheme for this teaching material**; it does not replace the course-level assessment weights in the official syllabus.
