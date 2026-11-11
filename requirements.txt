@@ -1,2 +1,2 @@
-flask
-gunicorn
+flask>=3.0,<4
+waitress>=3.0,<4

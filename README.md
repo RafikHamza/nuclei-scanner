@@ -1,50 +1,104 @@
-# Nuclei Scanner — Local Docker Lab
+# Nuclei Scanner — Docker-Free Local Lab
 
-A small Flask application that runs a Nuclei security-header check and displays the findings in a web page. This repository is the starter for a cybersecurity assignment.
+A classroom Flask application calling the **native ProjectDiscovery Nuclei CLI** with one fixed, bundled HTTP security-header template. Results are saved as JSONL and displayed in the web browser. **Docker, a Go compiler, and the full Nuclei template catalog are not required.**
 
-## How the starter works
+This is not a production vulnerability scanner. Only scan systems you own or are explicitly authorized to test.
 
-The web form in `templates/index.html` sends a target URL to the Flask `/scan` endpoint in `app.py`. Flask launches Nuclei with a fixed missing-security-headers template, writes JSONL results under `results/`, and renders findings in the web page. The container starts Gunicorn on port 10000.
+## Requirements
 
-**Note:** The current code does not enforce an authorized-target allowlist or distinguish every scan failure from a scan with no findings. Students should identify these limitations. The template path in `app.py` also depends on the template being present in the container. This starter has not been presented as a verified production scanner.
+- Python 3.10+ and Git (or download the GitHub ZIP)
+- The [ProjectDiscovery Nuclei executable](https://github.com/projectdiscovery/nuclei/releases), installed on `PATH`. On Windows, extract `nuclei.exe` from the Windows ZIP and add its directory to `PATH`. On Linux/macOS, follow the [official installation guide](https://docs.projectdiscovery.io/tools/nuclei/install).
+- Verify the executable via `nuclei -version`. Do **not** install the unrelated Python package `nuclei`. You do not need `nuclei -ut`: a minimal YAML template is bundled.
 
-## Assignment: Build and evaluate a local vulnerability-scanning application
+## Windows PowerShell (fresh student installation)
 
-**Aim:** Understand how a Python web service, Docker and Nuclei work together, then make one small, testable improvement.
+```powershell
+git clone https://github.com/RafikHamza/nuclei-scanner.git
+cd nuclei-scanner
+py -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+nuclei -version
+```
 
-1. **Fork and clone** [this repository](https://github.com/RafikHamza/nuclei-scanner).
-2. **Build the Docker image** from your fork:
-   ```bash
-   docker build -t nuclei-scanner-student .
-   ```
-3. **Run it locally** (not as a public web service):
-   ```bash
-   docker run --rm -p 127.0.0.1:10000:10000 nuclei-scanner-student
-   ```
-   Open `http://localhost:10000`.
-4. **Test only an explicitly authorized laboratory target.** Record what happens. Check the container logs and the Nuclei messages if the scan fails. Do not scan third-party websites without permission.
-5. **Explain the data flow:** browser form → Flask → Nuclei template → JSONL output → findings table. Identify one limitation in the starter.
-6. **Add one improvement** of your own. Examples: validate/allowlist targets; distinguish scanner errors from an empty result; summarize findings by severity; provide a scan-history view; or offer a JSONL download. Do not remove the permission requirement.
-7. **Test before and after your change.** Show the result of a normal case and a failure case, and explain what the evidence shows.
+Terminal 1: Start your authorized local test website.
 
-### Submit
+```powershell
+.\.venv\Scripts\python.exe -m http.server 8000 --bind 127.0.0.1
+```
 
-- Link to your fork with the modified source and a brief README describing your contribution.
-- Screenshot of the running Docker container and the application at `localhost:10000`.
-- Evidence of a normal test and an error/failure test (screenshots or short, sanitized logs).
-- **1–2 page report:** architecture, tools used, how Docker/Flask/Nuclei are connected, your improvement, test results, one difficulty and how you resolved it.
+Terminal 2: Run the scanner.
 
-Never include passwords, tokens, private customer information, or unauthorized scan targets in the submission.
+```powershell
+.\.venv\Scripts\python.exe app.py
+```
 
-### Marking rubric (10 points)
+Open **http://127.0.0.1:10000** and scan **http://127.0.0.1:8000**. Stop both terminals with Ctrl+C.
 
-| Criterion | Points | What is evaluated |
-|---|---:|---|
-| Local setup | 2 | Fork, Docker build, local service, reproducible commands |
-| System understanding | 2 | Accurate explanation of Flask, Nuclei, template, JSONL and web output |
-| Individual improvement | 2.5 | Useful implementation with clear rationale and readable code |
-| Testing and evidence | 2 | Normal and failure cases, evidence linked to conclusions |
-| Report and responsible practice | 1.5 | Clear 1–2 page report, honest limitations, authorized-target testing |
-| **Total** | **10** | |
+## Linux/macOS (fresh student installation)
 
-The rubric is a **sample marking scheme for this teaching material**; it does not replace the course-level assessment weights in the official syllabus.
+```bash
+git clone https://github.com/RafikHamza/nuclei-scanner.git
+cd nuclei-scanner
+python3 -m venv .venv
+./.venv/bin/python -m pip install -r requirements.txt
+nuclei -version
+```
+
+In terminal 1:
+
+```bash
+./.venv/bin/python -m http.server 8000 --bind 127.0.0.1
+```
+
+In terminal 2:
+
+```bash
+./.venv/bin/python app.py
+```
+
+Visit **http://127.0.0.1:10000** and scan **http://127.0.0.1:8000**.
+
+## Architecture and safety
+
+Browser form → Flask `/scan` → exact-origin allowlist → native Nuclei CLI → fixed YAML header template → `results/*.jsonl` → HTML table.
+
+The template performs a single GET with redirects disabled. It identifies four commonly missing response headers, for educational purposes only. No matches **does not imply security**. A scanner failure is reported separately.
+
+The scanner listens on **127.0.0.1:10000** only. By default, the only allowed scanning origins are `http://127.0.0.1:8000` and `http://localhost:8000`. Only with explicit authorization may you set `ALLOWED_ORIGINS` to a comma-separated list of exact origins (e.g. `http://127.0.0.1:8000,http://192.0.2.10:8080`). If Nuclei is not on PATH, set `NUCLEI_BIN` to the executable path.
+
+**Security limitation:** Native execution is lighter but has less process isolation than Docker. Keep this lab local, do not expose the web app, and do not load arbitrary external templates. The allowlist is a teaching safeguard, not complete protection against malicious target services.
+
+## Tests and troubleshooting
+
+Run unit tests (no external network requests):
+
+```bash
+python -m unittest discover -s tests -v
+```
+
+Tests cover URL blocking, normal/empty JSONL, missing executable, nonzero exit, timeout, and invalid output. An actual end-to-end test requires Nuclei and the local practice website started as above.
+
+- **Nuclei not found:** verify `nuclei -version` in the same shell and check `PATH` or `NUCLEI_BIN`.
+- **Target not authorized:** use the default lab target or configure an explicitly permitted origin.
+- **Scanner error:** inspect the error; it must not be interpreted as a clean scan.
+- **No matches:** not proof of safety.
+
+## Student assignment (10-point example rubric)
+
+1. Fork/clone; install native Nuclei and Python, without Docker.
+2. Start the local test website and Flask interface, then scan only your authorized lab target.
+3. Explain browser → Flask → template → JSONL → results.
+4. Implement one improvement, such as severity summaries, scan history, JSONL download, or validation.
+5. Compare normal and error test cases before/after your improvement.
+6. Submit a fork link, screenshots of the scanner and terminals, sanitized evidence, and a 1–2 page report.
+
+| Criterion | Points |
+| --- | ---: |
+| Reproducible native setup | 2 |
+| Architecture explanation | 2 |
+| Individual improvement | 2.5 |
+| Testing and evidence | 2 |
+| Report and responsible practice | 1.5 |
+| **Total** | **10** |
+
+Never publish passwords, tokens, private target data, or unauthorized scan results.
