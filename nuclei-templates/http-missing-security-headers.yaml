@@ -1,0 +1,32 @@
+id: http-missing-security-headers
+
+info:
+  name: Missing Security Headers (Teaching Lab)
+  author: nuclei-scanner
+  severity: info
+  description: Missing headers are informational and may not imply a vulnerability.
+  tags: headers,misconfig,lab
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}"
+    redirects: false
+    matchers-condition: or
+    matchers:
+      - type: dsl
+        name: x-content-type-options
+        dsl:
+          - "!contains(tolower(header), 'x-content-type-options:')"
+      - type: dsl
+        name: content-security-policy
+        dsl:
+          - "!contains(tolower(header), 'content-security-policy:')"
+      - type: dsl
+        name: x-frame-options
+        dsl:
+          - "!contains(tolower(header), 'x-frame-options:')"
+      - type: dsl
+        name: referrer-policy
+        dsl:
+          - "!contains(tolower(header), 'referrer-policy:')"

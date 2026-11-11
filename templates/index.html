@@ -1,51 +1,46 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
 <head>
-    <title>Nuclei Security Scanner</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nuclei Scanner - Local Lab</title>
+<style>
+body { font: 16px/1.55 system-ui,sans-serif; max-width: 900px; padding: 1rem; margin: auto }
+input { padding: .6rem; width: min(100%, 32rem); box-sizing: border-box }
+button { padding: .6rem 1rem }
+table { width: 100%; border-collapse: collapse }
+th,td { padding: .5rem; border: 1px solid #aaa; text-align: left; overflow-wrap: anywhere }
+.error { color: #ae1212; font-weight: bold }
+pre { white-space: pre-wrap; overflow-wrap: anywhere }
+</style>
 </head>
 <body>
-
-<h1>Nuclei Security Scanner</h1>
-
-<form action="/scan" method="post" onsubmit="document.getElementById('msg').innerHTML='Scanning... please wait';">
-    <input name="target" placeholder="https://example.com" required>
-    <button type="submit">Scan</button>
+<h1>Nuclei Scanner - Local Lab</h1>
+<p>Scan only systems you own or are permitted to test. Default: http://127.0.0.1:8000.</p>
+<form action="/scan" method="post" onsubmit="document.getElementById('status').textContent='Scanning…';">
+<label for="target">Authorized URL</label>
+<input id="target" name="target" type="url" maxlength="2048" required value="{{ target or 'http://127.0.0.1:8000' }}">
+<button type="submit">Scan</button>
 </form>
-
-<p id="msg"></p>
-
-{% if target %}
-    <h2>Results for {{ target }}</h2>
-
-    {% if findings %}
-        <table border="1" cellpadding="6">
-            <tr>
-                <th>Severity</th>
-                <th>Template</th>
-                <th>Missing Header</th>
-                <th>URL</th>
-                <th>Description</th>
-            </tr>
-
-            {% for f in findings %}
-            <tr>
-                <td>{{ f.get("info", {}).get("severity", "") }}</td>
-                <td>{{ f.get("info", {}).get("name", "") }}</td>
-                <td>{{ f.get("matcher-name", "") }}</td>
-                <td>{{ f.get("matched-at", "") }}</td>
-                <td>{{ f.get("info", {}).get("description", "") }}</td>
-            </tr>
-            {% endfor %}
-        </table>
-    {% else %}
-        <p>No missing security headers found.</p>
-    {% endif %}
-
-    {% if stderr %}
-        <h3>Nuclei messages</h3>
-        <pre>{{ stderr }}</pre>
-    {% endif %}
+<p id="status" aria-live="polite"></p>
+{% if error %}
+<p class="error" role="alert">Scan error: {{ error }}</p>
+{% elif completed %}
+<h2>Results for {{ target }}</h2>
+{% if findings %}
+<table>
+<thead><tr><th>Severity</th><th>Template</th><th>Missing header</th><th>URL</th><th>Description</th></tr></thead>
+<tbody>
+{% for f in findings %}
+<tr><td>{{ f.get('info', {}).get('severity', '') }}</td>
+<td>{{ f.get('info', {}).get('name', '') }}</td>
+<td>{{ f.get('matcher-name', '') }}</td>
+<td>{{ f.get('matched-at', '') }}</td>
+<td>{{ f.get('info', {}).get('description', '') }}</td></tr>
+{% endfor %}
+</tbody></table>
+{% else %}
+<p>No matches from the limited header template. This does not establish that the target is secure.</p>
 {% endif %}
-
-</body>
-</html>
+{% if stderr %}<h3>Scanner messages</h3><pre>{{ stderr }}</pre>{% endif %}
+{% endif %}
+</body></html>
