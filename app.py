@@ -56,10 +56,10 @@ def scan_target(target):
         os.environ.get("NUCLEI_BIN", "nuclei"), "-u", target,
         "-t", str(TEMPLATE), "-jsonl", "-o", str(output),
         "-c", "1", "-rl", "1", "-timeout", "10", "-retries", "0",
-        "-silent", "-duc", "-ni", "-no-color",
+        "-silent", "-duc", "-ni", "-no-color", "-dr", "-no-stdin",
     ]
     try:
-        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=45)
+        proc = subprocess.run(cmd, capture_output=True, text=True, stdin=subprocess.DEVNULL, timeout=45)
     except FileNotFoundError as exc:
         raise RuntimeError("Nuclei not found. Check PATH or NUCLEI_BIN.") from exc
     except subprocess.TimeoutExpired as exc:
