@@ -70,6 +70,9 @@ class ScannerTests(unittest.TestCase):
             self.assertEqual(cmd[cmd.index("-t") + 1], str(scanner.TEMPLATE))
             self.assertEqual(cmd[cmd.index("-u") + 1], "http://127.0.0.1:8000")
             self.assertEqual(kwargs["timeout"], 45)
+            self.assertIn("-no-stdin", cmd)
+            self.assertIn("-dr", cmd)
+            self.assertIs(kwargs["stdin"], subprocess.DEVNULL)
             Path(cmd[cmd.index("-o") + 1]).write_text(
                 json.dumps({"info": {"name": "Header test", "severity": "info"},
                             "matcher-name": "x-frame-options"}) + "\n", encoding="utf-8")
