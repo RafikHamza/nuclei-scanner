@@ -1,103 +1,127 @@
 # Nuclei Security Scanner — Student Lab
 
-This project is a small web application for checking HTTP security headers on a **local practice website**.
+This project checks HTTP security headers on a **local practice website**. You will use Python, Flask, and [ProjectDiscovery Nuclei](https://github.com/projectdiscovery/nuclei). Findings appear in your browser and are saved as JSONL files.
 
-You will use Python, Flask, and [Nuclei](https://github.com/projectdiscovery/nuclei). The scanner shows findings in your browser and saves results in JSONL format.
+**Use only systems you own or are explicitly authorized to test.** For this assignment, scan the local practice website described below.
 
-**Only scan websites you own or have explicit permission to test.** Use the local practice website below for this assignment.
+## 1. Install the tools
 
-## 1. Install the required software
+You need **Python 3.10 or newer**, **Git**, and **Nuclei**.
 
-- **Python 3.10 or newer:** [python.org/downloads](https://www.python.org/downloads/)
-- **Nuclei:** [ProjectDiscovery releases](https://github.com/projectdiscovery/nuclei/releases)
-- **Git:** [git-scm.com/downloads](https://git-scm.com/downloads) (or download the project ZIP)
+### Windows students
 
-On Windows, download the Nuclei Windows release, extract `nuclei.exe`, and add its directory to your system `PATH`. On Linux/macOS, follow the [Nuclei installation guide](https://docs.projectdiscovery.io/tools/nuclei/install).
+1. Install [Python](https://www.python.org/downloads/windows/) and [Git](https://git-scm.com/downloads/win).
+2. Download the **Windows** Nuclei executable from the [official releases](https://github.com/projectdiscovery/nuclei/releases). Extract `nuclei.exe` and add its folder to your system's `PATH`.
+3. Open **PowerShell** and check:
 
-Check that Nuclei is available:
-
-```text
+```powershell
+py --version
+git --version
 nuclei -version
 ```
 
-## 2. Set up the project
+### macOS students (Apple Silicon or Intel)
 
-**Windows (PowerShell)**
+1. Install [Python](https://www.python.org/downloads/macos/) and [Git](https://git-scm.com/downloads/mac).
+2. Install [Homebrew](https://brew.sh/) if you do not already have it. In **Terminal**, run:
+
+```bash
+brew install nuclei
+```
+
+3. Check that all three tools are available:
+
+```bash
+python3 --version
+git --version
+nuclei -version
+```
+
+If you prefer not to use Homebrew, download the appropriate **macOS** Nuclei executable (Apple Silicon: ARM64; Intel: AMD64) from the [official releases](https://github.com/projectdiscovery/nuclei/releases) and follow the included installation instructions.
+
+**Check the Python version:** it must be 3.10 or newer. If any command is not found, resolve that installation before continuing.
+
+## 2. Download and set up the project
+
+First **fork this repository** on GitHub to your own account. In the commands below, replace `YOUR_USERNAME` with your GitHub username.
+
+### Windows — PowerShell
 
 ```powershell
-git clone https://github.com/RafikHamza/nuclei-scanner.git
+git clone https://github.com/YOUR_USERNAME/nuclei-scanner.git
 cd nuclei-scanner
 py -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
 
-**Linux/macOS**
+### macOS — Terminal
 
 ```bash
-git clone https://github.com/RafikHamza/nuclei-scanner.git
+git clone https://github.com/YOUR_USERNAME/nuclei-scanner.git
 cd nuclei-scanner
 python3 -m venv .venv
 ./.venv/bin/python -m pip install -r requirements.txt
 ```
 
-For your submission, **fork the repository first and clone your own fork** so you can commit your improvements.
+You need to do this setup only once per local project copy.
 
 ## 3. Start the practice website
 
-Open **Terminal 1** in the project folder.
+Open **Terminal 1** in the `nuclei-scanner` folder and leave it running.
 
-**Windows:**
+**Windows (PowerShell)**
 
 ```powershell
 .\.venv\Scripts\python.exe -m http.server 8000 --bind 127.0.0.1
 ```
 
-**Linux/macOS:**
+**macOS (Terminal)**
 
 ```bash
 ./.venv/bin/python -m http.server 8000 --bind 127.0.0.1
 ```
 
-Leave this terminal running. Your practice website is **http://127.0.0.1:8000**.
+The practice website is now available at **http://127.0.0.1:8000**.
 
-## 4. Start the scanner
+## 4. Run the scanner
 
-Open **Terminal 2** in the same project folder.
+Open **Terminal 2** in the **same** `nuclei-scanner` folder. Keep Terminal 1 running.
 
-**Windows:**
+**Windows (PowerShell)**
 
 ```powershell
 .\.venv\Scripts\python.exe app.py
 ```
 
-**Linux/macOS:**
+**macOS (Terminal)**
 
 ```bash
 ./.venv/bin/python app.py
 ```
 
-Open **http://127.0.0.1:10000** in your browser. Enter **http://127.0.0.1:8000** and click **Scan**. Review the findings. Press `Ctrl+C` in both terminals when finished.
+Open **http://127.0.0.1:10000** in your browser. Enter **http://127.0.0.1:8000** and select **Scan**.
 
-## 5. Understand the results
+Review the findings. To stop the application, press `Ctrl+C` in each terminal.
 
-1. Your browser sends the URL to Flask.
-2. Flask verifies that the URL is an authorized laboratory target.
-3. Nuclei runs the provided YAML security-header template.
-4. Nuclei saves the results in the `results/` folder as JSONL.
-5. Flask displays the findings in the browser.
+## 5. Understand what the scanner does
 
-The template checks four common headers: `X-Content-Type-Options`, `Content-Security-Policy`, `X-Frame-Options`, and `Referrer-Policy`.
+1. The browser sends the target URL to Flask.
+2. Flask checks that it is an authorized laboratory target.
+3. Nuclei uses the included YAML template to inspect the HTTP response.
+4. Nuclei writes findings to `results/` as JSONL.
+5. Flask shows the findings in the browser.
 
-**Important:** A missing header is not automatically a vulnerability. No findings do not mean a website is secure. Scanner errors appear separately.
+The template checks for four common headers: `X-Content-Type-Options`, `Content-Security-Policy`, `X-Frame-Options`, and `Referrer-Policy`.
 
-## 6. Your assignment
+**Interpret results carefully:** a missing header does not always indicate a vulnerability, and no findings do not prove that a website is secure. Scanner errors are displayed separately.
 
-1. Fork this repository to your GitHub account and clone your fork.
-2. Run the practice website and scanner. Capture a screenshot of the result.
-3. Explain how Flask, Nuclei, the YAML template, and JSONL results work together.
-4. Identify one limitation and implement **one improvement** (for example, a severity summary, scan history, JSONL download, or improved validation messages).
-5. Test before and after your change. Document a successful case and an error case.
-6. Submit your GitHub fork link, screenshots or short sanitized logs, and a **1–2 page report** describing the system, improvement, tests, and one difficulty encountered.
+## 6. Assignment
+
+1. Run the local practice website and scanner; take screenshots showing that both work.
+2. Explain the browser → Flask → Nuclei template → JSONL → results process.
+3. Identify one limitation and implement **one improvement**, such as a severity summary, scan history, JSONL download, or clearer validation messages.
+4. Test your improvement with a normal case **and** a failure case. Explain what changed.
+5. Submit your fork URL, relevant screenshots or sanitized logs, and a **1–2 page report** describing the architecture, changes, tests, and one difficulty you resolved.
 
 ### Example marking rubric (10 points)
 
@@ -110,21 +134,28 @@ The template checks four common headers: `X-Content-Type-Options`, `Content-Secu
 | Report and responsible testing | 1.5 |
 | **Total** | **10** |
 
-This example rubric does not replace your course's official assessment rules.
+This example rubric does not replace the official course assessment rules.
 
 ## Troubleshooting
 
-- **Nuclei command not found:** check installation and your system `PATH` (or configure `NUCLEI_BIN`).
-- **Target not authorized:** use `http://127.0.0.1:8000`.
-- **Scanner error:** check the message displayed on the page.
-- **Port already in use:** stop previous processes using that port.
+- **Python or Nuclei command not found:** verify the installation and check `PATH`.
+- **Target not authorized:** use `http://127.0.0.1:8000` as instructed.
+- **Cannot open the scanner page:** check that Terminal 2 is still running.
+- **Port already in use:** stop another process using that port.
+- **Scanner error:** read the error displayed in your browser.
 
-Run the automated tests from the project folder:
+To run the included automated checks from your project folder:
 
-```bash
-python -m unittest discover -s tests -v
+**Windows**
+
+```powershell
+.\.venv\Scripts\python.exe -m unittest discover -s tests -v
 ```
 
-On Windows, use `.\.venv\Scripts\python.exe` instead of `python` if needed.
+**macOS**
 
-Keep the application on your computer; do not expose the scanner publicly. Never include credentials, private data, or unauthorized scan results in your submission.
+```bash
+./.venv/bin/python -m unittest discover -s tests -v
+```
+
+Keep this application on your own computer. Do not expose it publicly or include passwords, private data, or unauthorized scan results in your submission.
