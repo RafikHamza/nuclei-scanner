@@ -1,104 +1,130 @@
-# Nuclei Scanner — Docker-Free Local Lab
+# Nuclei Security Scanner — Student Lab
 
-A classroom Flask application calling the **native ProjectDiscovery Nuclei CLI** with one fixed, bundled HTTP security-header template. Results are saved as JSONL and displayed in the web browser. **Docker, a Go compiler, and the full Nuclei template catalog are not required.**
+This project is a small web application for checking HTTP security headers on a **local practice website**.
 
-This is not a production vulnerability scanner. Only scan systems you own or are explicitly authorized to test.
+You will use Python, Flask, and [Nuclei](https://github.com/projectdiscovery/nuclei). The scanner shows findings in your browser and saves results in JSONL format.
 
-## Requirements
+**Only scan websites you own or have explicit permission to test.** Use the local practice website below for this assignment.
 
-- Python 3.10+ and Git (or download the GitHub ZIP)
-- The [ProjectDiscovery Nuclei executable](https://github.com/projectdiscovery/nuclei/releases), installed on `PATH`. On Windows, extract `nuclei.exe` from the Windows ZIP and add its directory to `PATH`. On Linux/macOS, follow the [official installation guide](https://docs.projectdiscovery.io/tools/nuclei/install).
-- Verify the executable via `nuclei -version`. Do **not** install the unrelated Python package `nuclei`. You do not need `nuclei -ut`: a minimal YAML template is bundled.
+## 1. Install the required software
 
-## Windows PowerShell (fresh student installation)
+- **Python 3.10 or newer:** [python.org/downloads](https://www.python.org/downloads/)
+- **Nuclei:** [ProjectDiscovery releases](https://github.com/projectdiscovery/nuclei/releases)
+- **Git:** [git-scm.com/downloads](https://git-scm.com/downloads) (or download the project ZIP)
+
+On Windows, download the Nuclei Windows release, extract `nuclei.exe`, and add its directory to your system `PATH`. On Linux/macOS, follow the [Nuclei installation guide](https://docs.projectdiscovery.io/tools/nuclei/install).
+
+Check that Nuclei is available:
+
+```text
+nuclei -version
+```
+
+## 2. Set up the project
+
+**Windows (PowerShell)**
 
 ```powershell
 git clone https://github.com/RafikHamza/nuclei-scanner.git
 cd nuclei-scanner
 py -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
-nuclei -version
 ```
 
-Terminal 1: Start your authorized local test website.
-
-```powershell
-.\.venv\Scripts\python.exe -m http.server 8000 --bind 127.0.0.1
-```
-
-Terminal 2: Run the scanner.
-
-```powershell
-.\.venv\Scripts\python.exe app.py
-```
-
-Open **http://127.0.0.1:10000** and scan **http://127.0.0.1:8000**. Stop both terminals with Ctrl+C.
-
-## Linux/macOS (fresh student installation)
+**Linux/macOS**
 
 ```bash
 git clone https://github.com/RafikHamza/nuclei-scanner.git
 cd nuclei-scanner
 python3 -m venv .venv
 ./.venv/bin/python -m pip install -r requirements.txt
-nuclei -version
 ```
 
-In terminal 1:
+For your submission, **fork the repository first and clone your own fork** so you can commit your improvements.
+
+## 3. Start the practice website
+
+Open **Terminal 1** in the project folder.
+
+**Windows:**
+
+```powershell
+.\.venv\Scripts\python.exe -m http.server 8000 --bind 127.0.0.1
+```
+
+**Linux/macOS:**
 
 ```bash
 ./.venv/bin/python -m http.server 8000 --bind 127.0.0.1
 ```
 
-In terminal 2:
+Leave this terminal running. Your practice website is **http://127.0.0.1:8000**.
+
+## 4. Start the scanner
+
+Open **Terminal 2** in the same project folder.
+
+**Windows:**
+
+```powershell
+.\.venv\Scripts\python.exe app.py
+```
+
+**Linux/macOS:**
 
 ```bash
 ./.venv/bin/python app.py
 ```
 
-Visit **http://127.0.0.1:10000** and scan **http://127.0.0.1:8000**.
+Open **http://127.0.0.1:10000** in your browser. Enter **http://127.0.0.1:8000** and click **Scan**. Review the findings. Press `Ctrl+C` in both terminals when finished.
 
-## Architecture and safety
+## 5. Understand the results
 
-Browser form → Flask `/scan` → exact-origin allowlist → native Nuclei CLI → fixed YAML header template → `results/*.jsonl` → HTML table.
+1. Your browser sends the URL to Flask.
+2. Flask verifies that the URL is an authorized laboratory target.
+3. Nuclei runs the provided YAML security-header template.
+4. Nuclei saves the results in the `results/` folder as JSONL.
+5. Flask displays the findings in the browser.
 
-The template performs a single GET with redirects disabled. It identifies four commonly missing response headers, for educational purposes only. No matches **does not imply security**. A scanner failure is reported separately.
+The template checks four common headers: `X-Content-Type-Options`, `Content-Security-Policy`, `X-Frame-Options`, and `Referrer-Policy`.
 
-The scanner listens on **127.0.0.1:10000** only. By default, the only allowed scanning origins are `http://127.0.0.1:8000` and `http://localhost:8000`. Only with explicit authorization may you set `ALLOWED_ORIGINS` to a comma-separated list of exact origins (e.g. `http://127.0.0.1:8000,http://192.0.2.10:8080`). If Nuclei is not on PATH, set `NUCLEI_BIN` to the executable path.
+**Important:** A missing header is not automatically a vulnerability. No findings do not mean a website is secure. Scanner errors appear separately.
 
-**Security limitation:** Native execution is lighter but has less process isolation than Docker. Keep this lab local, do not expose the web app, and do not load arbitrary external templates. The allowlist is a teaching safeguard, not complete protection against malicious target services.
+## 6. Your assignment
 
-## Tests and troubleshooting
+1. Fork this repository to your GitHub account and clone your fork.
+2. Run the practice website and scanner. Capture a screenshot of the result.
+3. Explain how Flask, Nuclei, the YAML template, and JSONL results work together.
+4. Identify one limitation and implement **one improvement** (for example, a severity summary, scan history, JSONL download, or improved validation messages).
+5. Test before and after your change. Document a successful case and an error case.
+6. Submit your GitHub fork link, screenshots or short sanitized logs, and a **1–2 page report** describing the system, improvement, tests, and one difficulty encountered.
 
-Run unit tests (no external network requests):
+### Example marking rubric (10 points)
+
+| Criterion | Points |
+| --- | ---: |
+| Correct local setup | 2 |
+| Explanation of how the application works | 2 |
+| Individual improvement | 2.5 |
+| Testing and evidence | 2 |
+| Report and responsible testing | 1.5 |
+| **Total** | **10** |
+
+This example rubric does not replace your course's official assessment rules.
+
+## Troubleshooting
+
+- **Nuclei command not found:** check installation and your system `PATH` (or configure `NUCLEI_BIN`).
+- **Target not authorized:** use `http://127.0.0.1:8000`.
+- **Scanner error:** check the message displayed on the page.
+- **Port already in use:** stop previous processes using that port.
+
+Run the automated tests from the project folder:
 
 ```bash
 python -m unittest discover -s tests -v
 ```
 
-Tests cover URL blocking, normal/empty JSONL, missing executable, nonzero exit, timeout, and invalid output. An actual end-to-end test requires Nuclei and the local practice website started as above.
+On Windows, use `.\.venv\Scripts\python.exe` instead of `python` if needed.
 
-- **Nuclei not found:** verify `nuclei -version` in the same shell and check `PATH` or `NUCLEI_BIN`.
-- **Target not authorized:** use the default lab target or configure an explicitly permitted origin.
-- **Scanner error:** inspect the error; it must not be interpreted as a clean scan.
-- **No matches:** not proof of safety.
-
-## Student assignment (10-point example rubric)
-
-1. Fork/clone; install native Nuclei and Python, without Docker.
-2. Start the local test website and Flask interface, then scan only your authorized lab target.
-3. Explain browser → Flask → template → JSONL → results.
-4. Implement one improvement, such as severity summaries, scan history, JSONL download, or validation.
-5. Compare normal and error test cases before/after your improvement.
-6. Submit a fork link, screenshots of the scanner and terminals, sanitized evidence, and a 1–2 page report.
-
-| Criterion | Points |
-| --- | ---: |
-| Reproducible native setup | 2 |
-| Architecture explanation | 2 |
-| Individual improvement | 2.5 |
-| Testing and evidence | 2 |
-| Report and responsible practice | 1.5 |
-| **Total** | **10** |
-
-Never publish passwords, tokens, private target data, or unauthorized scan results.
+Keep the application on your computer; do not expose the scanner publicly. Never include credentials, private data, or unauthorized scan results in your submission.
