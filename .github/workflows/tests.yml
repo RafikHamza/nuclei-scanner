@@ -1,4 +1,4 @@
-name: Docker-free student tests
+name: Scanner tests
 on:
   push:
   pull_request:
