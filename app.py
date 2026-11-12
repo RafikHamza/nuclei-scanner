@@ -1,4 +1,4 @@
-"""Docker-free Nuclei teaching scanner. Serve locally; scan only allowed origins."""
+"""Nuclei teaching scanner. Serve locally; scan only allowed origins."""
 import json
 import os
 import subprocess
